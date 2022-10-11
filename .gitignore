@@ -39,3 +39,6 @@ docs/
 
 # VsCode
 .vscode/
+
+# Ignore binary
+ugit
