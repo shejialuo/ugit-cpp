@@ -17,3 +17,4 @@ with the following requirements:
 There are some external libraries we use in this project. And we manage it with `git submodule`.
 
 + [spdlog](https://github.com/gabime/spdlog) used for logging.
++ [CLI11](https://github.com/CLIUtils/CLI11) used for command line parser

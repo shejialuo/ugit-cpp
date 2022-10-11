@@ -21,7 +21,17 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/google/googletest.git
   GIT_TAG release-1.12.1
 )
-FetchContent_MakeAvailable(googletest)
+
+# Here we use CMake `FetchCOntent` module to download
+# the dependency to build the system
+# See https://github.com/CLIUtils/CLI11#install
+FetchContent_Declare(
+  cli11
+  GIT_REPOSITORY https://github.com/CLIUtils/CLI11
+  GIT_TAG v2.2.0
+)
+
+FetchContent_MakeAvailable(googletest cli11)
 
 # See https://cmake.org/cmake/help/latest/module/FindDoxygen.html
 find_package(Doxygen
@@ -62,10 +72,5 @@ endif()
 
 # We need to add the dependency directory for spdlog
 add_subdirectory(./deps/spdlog)
-
-# See https://github.com/gabime/spdlog/blob/v1.x/example/CMakeLists.txt
-if(NOT TARGET spdlog)
-  find_package(spdlog REQUIRED)
-endif()
 
 add_subdirectory(./ugit-cpp)
