@@ -42,3 +42,6 @@ docs/
 
 # Ignore binary
 ugit
+
+# Ignore test file
+.ugit

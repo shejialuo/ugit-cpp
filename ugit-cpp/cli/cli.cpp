@@ -5,6 +5,7 @@
 
 #include "cli.hpp"
 
+#include "hashObjectSubcommand.hpp"
 #include "initSubcommand.hpp"
 
 /**
@@ -14,4 +15,7 @@
  *
  * @param app CLI::App
  */
-void ugit::parseArgs(CLI::App &app) { ugit::setInitSubcommand(app); }
+void ugit::parseArgs(CLI::App &app) {
+  ugit::setInitSubcommand(app);
+  ugit::setHashObjectSubcommand(app);
+}
