@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14)
 project(ugit-cpp LANGUAGES CXX)
 
 # GoogleTest requires are least C++14
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 # Here, we must include the CTest, because we
 # call `enabletesting` internally.

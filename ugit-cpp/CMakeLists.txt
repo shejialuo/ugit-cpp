@@ -1,4 +1,5 @@
 add_subdirectory(./cli)
+add_subdirectory(./data)
 
 add_executable(ugit main.cpp)
 target_link_libraries(ugit PRIVATE cli CLI11::CLI11)

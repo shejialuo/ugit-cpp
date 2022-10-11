@@ -6,6 +6,8 @@
 
 #include "initSubcommand.hpp"
 
+#include "data.hpp"
+
 #include <iostream>
 
 /**
@@ -22,4 +24,4 @@ void ugit::setInitSubcommand(CLI::App &app) {
  * @brief Run the Init SubCommand
  *
  */
-void ugit::runInitSubcommand() { std::cout << "Hello, World!\n"; }
+void ugit::runInitSubcommand() { ugit::initialization(); }
