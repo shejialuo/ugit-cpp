@@ -63,6 +63,10 @@ std::string ugit::hashObject(std::string file) {
   // Now we need to write the binary contents to the file
   path objectHashFile = path{GIT_DIR} / path{"objects"} / path{objectID};
   std::ofstream os{objectHashFile.string(), std::ios::binary | std::ios::trunc};
+  if (!os.is_open()) {
+    spdlog::error("{} could not be opened, there may be no ugit repository.", objectHashFile.string());
+    exit(static_cast<int>(ugit::Error::OpenFileError));
+  }
   os.write(reinterpret_cast<const char *>(&data[0]), data.size());
   os.close();
   return objectID;
@@ -76,6 +80,12 @@ std::string ugit::hashObject(std::string file) {
 std::string ugit::getObject(std::string object) {
   using namespace std::filesystem;
   path objectHashFile = path{GIT_DIR} / path{"objects"} / path{object};
+  if (!exists(objectHashFile)) {
+    spdlog::error("{} does not exist, there may be no ugit repository "
+                  "or your object id is not correct.",
+                  objectHashFile.string());
+    exit(static_cast<int>(ugit::Error::FileNotExist));
+  }
   std::ifstream fs{objectHashFile.string(), std::ios::binary};
   std::string result{std::istreambuf_iterator<char>(fs), {}};
   fs.close();
