@@ -10,6 +10,8 @@
 #include "spdlog/spdlog.h"
 #include "util.hpp"
 
+#include <algorithm>
+#include <cstdio>
 #include <filesystem>
 #include <fstream>
 #include <iterator>
@@ -64,4 +66,18 @@ std::string ugit::hashObject(std::string file) {
   os.write(reinterpret_cast<const char *>(&data[0]), data.size());
   os.close();
   return objectID;
+}
+
+/**
+ * @brief Get the content for the specified object id
+ *
+ * @param object object id
+ */
+std::string ugit::getObject(std::string object) {
+  using namespace std::filesystem;
+  path objectHashFile = path{GIT_DIR} / path{"objects"} / path{object};
+  std::ifstream fs{objectHashFile.string(), std::ios::binary};
+  std::string result{std::istreambuf_iterator<char>(fs), {}};
+  fs.close();
+  return result;
 }

@@ -5,6 +5,7 @@
 
 #include "cli.hpp"
 
+#include "catFileSubcommand.hpp"
 #include "hashObjectSubcommand.hpp"
 #include "initSubcommand.hpp"
 
@@ -18,4 +19,5 @@
 void ugit::parseArgs(CLI::App &app) {
   ugit::setInitSubcommand(app);
   ugit::setHashObjectSubcommand(app);
+  ugit::setCatFileSubcommand(app);
 }
