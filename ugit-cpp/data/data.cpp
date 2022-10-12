@@ -38,27 +38,17 @@ void ugit::initialization() {
 }
 
 /**
- * @brief Read the data of the file to generate its sha1sum
+ * @brief From binary data to generate its sha1sum
  * And create the files named `sha1sum` whose content is the
  * data of the file. Well, just a mapping.
  *eturn ugit::sha1sumHex(data);
- * @param file the path of the file
+ * @param data the binary data of the reading content.
  * @param type the specified type.
  */
-std::string ugit::hashObject(std::string file, std::string type) {
+std::string ugit::hashObject(const std::vector<uint8_t> &data, std::string type) {
   using namespace std::filesystem;
 
-  // First, we need to read the content of the file as the binary
-  // We should do some check for robust
-  if (!exists(file)) {
-    spdlog::error("{} does not exist", file);
-    exit(static_cast<int>(ugit::Error::FileNotExist));
-  }
-  std::ifstream fs{file, std::ios::binary};
-  const std::vector<uint8_t> data{std::istreambuf_iterator<char>(fs), {}};
-  fs.close();
-
-  // Second, calculate the sha1sumHexValue
+  // Calculate the object id
   std::string objectID = ugit::sha1sumHex(data);
 
   // Now we need to write the binary contents to the file

@@ -7,8 +7,13 @@
 #include "hashObjectSubcommand.hpp"
 
 #include "data.hpp"
+#include "err.hpp"
+#include "spdlog/spdlog.h"
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <string>
 
@@ -26,11 +31,20 @@ void ugit::setHashObjectSubcommand(CLI::App &app) {
 }
 
 /**
- * @brief call ugit::hashObject(opt.file)
+ * @brief open the `opt.file` and call `ugit::hasObject()` for later processing
  *
  * @param opt hashObjectSubcommand arguments
  */
 void ugit::runHashObjectSubcommand(HashObjectSubcommandOptions const &opt) {
-  std::string objectID = ugit::hashObject(opt.file);
+  using namespace std::filesystem;
+  path file{opt.file};
+  if (!exists(file)) {
+    spdlog::error("{} does not exist", opt.file);
+    exit(static_cast<int>(ugit::Error::FileNotExist));
+  }
+  std::ifstream fs{file, std::ios::binary};
+  const std::vector<uint8_t> data{std::istreambuf_iterator<char>(fs), {}};
+  fs.close();
+  std::string objectID = ugit::hashObject(data);
   std::cout << objectID << "\n";
 }

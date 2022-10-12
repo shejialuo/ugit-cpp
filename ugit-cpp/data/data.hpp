@@ -9,10 +9,11 @@
 #define _UGIT_CPP_DATA_DATA_HPP_
 
 #include <string>
+#include <vector>
 
 namespace ugit {
 void initialization();
-std::string hashObject(std::string file, std::string type = "blob");
+std::string hashObject(const std::vector<uint8_t> &data, std::string type = "blob");
 std::string getObject(std::string object, std::string type = "blob");
 }  // namespace ugit
 
