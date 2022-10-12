@@ -47,3 +47,21 @@ std::string bytesToHexString(const std::vector<uint8_t> &data) {
   }
   return ret;
 }
+
+/**
+ * @brief Parse the `content` and returns the types and also
+ * removes the type from content
+ *
+ * @param type the type user should passed, which should be empty.
+ * @param content the object file content
+ */
+void ugit::getTypeAndRemoveType(std::string &type, std::string &content) {
+  size_t i = 0;
+  for (char c : content) {
+    if (c == ' ')
+      break;
+    type.push_back(c);
+    i++;
+  }
+  content.erase(0, i + 1);
+}

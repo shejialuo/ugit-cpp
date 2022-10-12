@@ -13,6 +13,7 @@ enum class Error {
   CraeteFileError = 1,
   FileNotExist,
   OpenFileError,
+  TypeNotEqual,
 };
 };  // namespace ugit
 

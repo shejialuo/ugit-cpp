@@ -12,8 +12,8 @@
 
 namespace ugit {
 void initialization();
-std::string hashObject(std::string file);
-std::string getObject(std::string object);
+std::string hashObject(std::string file, std::string type = "blob");
+std::string getObject(std::string object, std::string type = "blob");
 }  // namespace ugit
 
 #endif  // _UGIT_CPP_DATA_DATA_HPP_

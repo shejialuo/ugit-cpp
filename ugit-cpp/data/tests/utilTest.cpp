@@ -38,3 +38,23 @@ TEST(UtilTest, Sha1Sum) {
     EXPECT_EQ(actual, should);
   }
 }
+
+TEST(UtilTest, getTypeAndRemoveType) {
+  std::string type{};
+  std::string content{"12234 22"};
+  ugit::getTypeAndRemoveType(type, content);
+  ASSERT_EQ(type, "12234");
+  ASSERT_EQ(content, "22");
+
+  type.clear();
+  content = "       22";
+  ugit::getTypeAndRemoveType(type, content);
+  ASSERT_EQ(type, "");
+  ASSERT_EQ(content, "      22");
+
+  type.clear();
+  content = "blob \x00 mm";
+  ugit::getTypeAndRemoveType(type, content);
+  ASSERT_EQ(type, "blob");
+  ASSERT_EQ(content, "\x00 mm");
+}

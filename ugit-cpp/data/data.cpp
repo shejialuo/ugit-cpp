@@ -43,8 +43,9 @@ void ugit::initialization() {
  * data of the file. Well, just a mapping.
  *eturn ugit::sha1sumHex(data);
  * @param file the path of the file
+ * @param type the specified type.
  */
-std::string ugit::hashObject(std::string file) {
+std::string ugit::hashObject(std::string file, std::string type) {
   using namespace std::filesystem;
 
   // First, we need to read the content of the file as the binary
@@ -67,6 +68,10 @@ std::string ugit::hashObject(std::string file) {
     spdlog::error("{} could not be opened, there may be no ugit repository.", objectHashFile.string());
     exit(static_cast<int>(ugit::Error::OpenFileError));
   }
+  // Here, I just use a space to indicate the delimiter, actually
+  // it is not a good design, just for simplicty.
+  std::string typeIndicator = type + " ";
+  os.write(typeIndicator.c_str(), typeIndicator.size());
   os.write(reinterpret_cast<const char *>(&data[0]), data.size());
   os.close();
   return objectID;
@@ -76,8 +81,9 @@ std::string ugit::hashObject(std::string file) {
  * @brief Get the content for the specified object id
  *
  * @param object object id
+ * @param type the specified type
  */
-std::string ugit::getObject(std::string object) {
+std::string ugit::getObject(std::string object, std::string type) {
   using namespace std::filesystem;
   path objectHashFile = path{GIT_DIR} / path{"objects"} / path{object};
   if (!exists(objectHashFile)) {
@@ -89,5 +95,14 @@ std::string ugit::getObject(std::string object) {
   std::ifstream fs{objectHashFile.string(), std::ios::binary};
   std::string result{std::istreambuf_iterator<char>(fs), {}};
   fs.close();
+
+  // Here, we need to find the first space.
+  std::string typeFromFile{};
+  ugit::getTypeAndRemoveType(typeFromFile, result);
+  if (typeFromFile != type) {
+    spdlog::error("{} is no equal to actual {}. Check the type", type, typeFromFile);
+    exit(static_cast<int>(ugit::Error::TypeNotEqual));
+  }
+
   return result;
 }
