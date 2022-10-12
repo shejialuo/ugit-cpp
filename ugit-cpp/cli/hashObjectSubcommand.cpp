@@ -9,11 +9,9 @@
 #include "data.hpp"
 #include "err.hpp"
 #include "spdlog/spdlog.h"
+#include "util.hpp"
 
-#include <filesystem>
-#include <fstream>
 #include <iostream>
-#include <iterator>
 #include <memory>
 #include <string>
 
@@ -36,15 +34,7 @@ void ugit::setHashObjectSubcommand(CLI::App &app) {
  * @param opt hashObjectSubcommand arguments
  */
 void ugit::runHashObjectSubcommand(HashObjectSubcommandOptions const &opt) {
-  using namespace std::filesystem;
-  path file{opt.file};
-  if (!exists(file)) {
-    spdlog::error("{} does not exist", opt.file);
-    exit(static_cast<int>(ugit::Error::FileNotExist));
-  }
-  std::ifstream fs{file, std::ios::binary};
-  const std::vector<uint8_t> data{std::istreambuf_iterator<char>(fs), {}};
-  fs.close();
+  const std::vector<uint8_t> data = ugit::readBinaryFromFile(opt.file);
   std::string objectID = ugit::hashObject(data);
   std::cout << objectID << "\n";
 }

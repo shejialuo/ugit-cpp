@@ -14,6 +14,7 @@ enum class Error {
   FileNotExist,
   OpenFileError,
   TypeNotEqual,
+  TypeError,
 };
 };  // namespace ugit
 

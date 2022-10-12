@@ -5,6 +5,12 @@
 
 #include "util.hpp"
 
+#include "err.hpp"
+#include "spdlog/spdlog.h"
+
+#include <filesystem>
+#include <fstream>
+#include <iterator>
 #include <openssl/sha.h>
 
 std::string bytesToHexString(const std::vector<uint8_t> &input);
@@ -38,7 +44,7 @@ std::string bytesToHexString(const std::vector<uint8_t> &data) {
 
   auto buf = const_cast<char *>(ret.data());
 
-  // Here, we use Loopup table method
+  // Here, we use Lookup table method
   for (const auto &oneInputByte : data) {
     // Get the highest 4 bit
     *buf++ = characters[oneInputByte >> 4];
@@ -64,4 +70,23 @@ void ugit::getTypeAndRemoveType(std::string &type, std::string &content) {
     i++;
   }
   content.erase(0, i + 1);
+}
+
+/**
+ * @brief Read the file and write the binary data into data.
+ *
+ * @param filepath file path
+ * @return std::vector<uint8_t> return the binary data
+ */
+std::vector<uint8_t> ugit::readBinaryFromFile(const std::string &filepath) {
+  using namespace std::filesystem;
+  path file{filepath};
+  if (!exists(file)) {
+    spdlog::error("{} does not exist", filepath);
+    exit(static_cast<int>(ugit::Error::FileNotExist));
+  }
+  std::ifstream fs{file, std::ios::binary};
+  std::vector<uint8_t> data{std::istreambuf_iterator<char>(fs), {}};
+  fs.close();
+  return data;
 }

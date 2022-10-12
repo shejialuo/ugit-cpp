@@ -14,6 +14,7 @@
 namespace ugit {
 std::string sha1sumHex(const std::vector<uint8_t> &data);
 void getTypeAndRemoveType(std::string &type, std::string &content);
+std::vector<uint8_t> readBinaryFromFile(const std::string &filepath);
 }  // namespace ugit
 
 #endif  // _UGIT_CPP_DATA_UTIL_HPP_
