@@ -103,6 +103,27 @@ void ugit::readTree(std::string treeID) {
 }
 
 /**
+ * @brief Create 'commit' object and write the oid and parent
+ * oid. Also write the object id to the HEAD to indicate where
+ * we are.
+ *
+ * @param message
+ * @return commit object id
+ */
+std::string ugit::commit(std::string message) {
+  std::string commitContent = "tree " + ugit::writeTree() + "\n";
+  std::string headContent = ugit::getHead();
+  if (!headContent.empty()) {
+    commitContent += "parent " + headContent + "\n";
+  }
+  commitContent += "\n" + message + "\n";
+  const std::vector<uint8_t> data{commitContent.cbegin(), commitContent.cend()};
+  std::string commitID = ugit::hashObject(data, "commit");
+  ugit::setHead(commitID);
+  return commitID;
+}
+
+/**
  * @brief auxiliary function for reading trees, it is like
  * iterating the directory.
  *

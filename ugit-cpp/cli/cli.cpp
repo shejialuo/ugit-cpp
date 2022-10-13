@@ -6,6 +6,7 @@
 #include "cli.hpp"
 
 #include "catFileSubcommand.hpp"
+#include "commitSubcommand.hpp"
 #include "hashObjectSubcommand.hpp"
 #include "initSubcommand.hpp"
 #include "readTreeSubcommand.hpp"
@@ -24,4 +25,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setCatFileSubcommand(app);
   ugit::setWriteTreeSubcommand(app);
   ugit::setReadTreeSubcommand(app);
+  ugit::setCommitSubcommand(app);
 }

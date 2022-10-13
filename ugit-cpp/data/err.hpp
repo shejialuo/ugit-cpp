@@ -10,7 +10,7 @@
 
 namespace ugit {
 enum class Error {
-  CraeteFileError = 1,
+  CreateFileError = 1,
   FileNotExist,
   OpenFileError,
   TypeNotEqual,

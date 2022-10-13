@@ -25,14 +25,14 @@ void ugit::initialization() {
   path dir{GIT_DIR};
   if (!create_directory(dir)) {
     spdlog::error("create directory {} failed", GIT_DIR);
-    exit(static_cast<int>(ugit::Error::CraeteFileError));
+    exit(static_cast<int>(ugit::Error::CreateFileError));
   }
-  spdlog::info("create directorty {}", GIT_DIR);
+  spdlog::info("create directory {}", GIT_DIR);
   path object{"objects"};
   path objectDir = dir / object;
   if (!create_directories(objectDir)) {
-    spdlog::error("create diretory {} failed", objectDir.string());
-    exit(static_cast<int>(ugit::Error::CraeteFileError));
+    spdlog::error("create directory {} failed", objectDir.string());
+    exit(static_cast<int>(ugit::Error::CreateFileError));
   }
   spdlog::info("create directory {}", objectDir.string());
 }
@@ -41,7 +41,7 @@ void ugit::initialization() {
  * @brief From binary data to generate its sha1sum
  * And create the files named `sha1sum` whose content is the
  * data of the file. Well, just a mapping.
- *eturn ugit::sha1sumHex(data);
+ *
  * @param data the binary data of the reading content.
  * @param type the specified type.
  */
@@ -59,7 +59,7 @@ std::string ugit::hashObject(const std::vector<uint8_t> &data, std::string type)
     exit(static_cast<int>(ugit::Error::OpenFileError));
   }
   // Here, I just use a space to indicate the delimiter, actually
-  // it is not a good design, just for simplicty.
+  // it is not a good design, just for simplicity.
   std::string typeIndicator = type + " ";
   os.write(typeIndicator.c_str(), typeIndicator.size());
   os.write(reinterpret_cast<const char *>(&data[0]), data.size());
@@ -95,4 +95,44 @@ std::string ugit::getObject(std::string object, std::string type) {
   }
 
   return result;
+}
+
+/**
+ * @brief write the commit object id to the HEAD
+ *
+ * @param commitID
+ */
+void ugit::setHead(std::string commitID) {
+  using namespace std::filesystem;
+  path file = path{GIT_DIR} / path{"HEAD"};
+  std::ofstream os{file.string(), std::ios::trunc | std::ios::binary};
+  if (!os.is_open()) {
+    spdlog::error("cannot open {} for writing", file.string());
+    exit(static_cast<int>(ugit::Error::OpenFileError));
+  }
+  os.write(commitID.c_str(), commitID.size());
+  os.close();
+}
+
+/**
+ * @brief return the current commit object ID
+ *
+ * @return std::string
+ */
+std::string ugit::getHead() {
+  using namespace std::filesystem;
+  path file = path{GIT_DIR} / path{"HEAD"};
+  // When we are at the root, there is no HEAD FILE, we just return
+  // an empty string
+  if (!exists(file)) {
+    return {};
+  }
+  std::ifstream is{file.string(), std::ios::binary};
+  if (!is.is_open()) {
+    spdlog::error("cannot open {} for reading", file.string());
+    exit(static_cast<int>(ugit::Error::OpenFileError));
+  }
+  std::string headContent{std::istreambuf_iterator<char>(is), {}};
+  is.close();
+  return headContent;
 }

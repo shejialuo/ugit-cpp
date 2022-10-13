@@ -13,6 +13,7 @@
 namespace ugit {
 std::string writeTree(std::string directory = ".");
 void readTree(std::string treeID);
+std::string commit(std::string message);
 }  // namespace ugit
 
 #endif  // _UGIT_CPP_DATA_BASE_HPP_
