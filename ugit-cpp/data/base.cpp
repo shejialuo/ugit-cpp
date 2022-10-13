@@ -160,6 +160,18 @@ std::tuple<std::string, std::string, std::string> ugit::getCommit(std::string co
 }
 
 /**
+ * @brief Populate the working directory with the content of the
+ * commit and move HEAD to point to it
+ *
+ * @param commitID commit object ID
+ */
+void ugit::checkout(std::string commitID) {
+  auto commit = ugit::getCommit(commitID);
+  ugit::readTree(std::get<0>(commit));
+  ugit::setHead(commitID);
+}
+
+/**
  * @brief auxiliary function for reading trees, it is like
  * iterating the directory.
  *

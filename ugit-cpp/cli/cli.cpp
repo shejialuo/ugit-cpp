@@ -6,6 +6,7 @@
 #include "cli.hpp"
 
 #include "catFileSubcommand.hpp"
+#include "checkoutSubcommand.hpp"
 #include "commitSubcommand.hpp"
 #include "hashObjectSubcommand.hpp"
 #include "initSubcommand.hpp"
@@ -28,4 +29,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setReadTreeSubcommand(app);
   ugit::setCommitSubcommand(app);
   ugit::setLogSubcommand(app);
+  ugit::setCheckoutSubcommand(app);
 }
