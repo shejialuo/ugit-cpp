@@ -9,6 +9,7 @@
 #include "commitSubcommand.hpp"
 #include "hashObjectSubcommand.hpp"
 #include "initSubcommand.hpp"
+#include "logSubcommand.hpp"
 #include "readTreeSubcommand.hpp"
 #include "writeTreeSubcommand.hpp"
 
@@ -26,4 +27,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setWriteTreeSubcommand(app);
   ugit::setReadTreeSubcommand(app);
   ugit::setCommitSubcommand(app);
+  ugit::setLogSubcommand(app);
 }

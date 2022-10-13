@@ -124,6 +124,42 @@ std::string ugit::commit(std::string message) {
 }
 
 /**
+ * @brief Parse the commit file to generate the
+ * tuple<treeID, parentCommitID, commitMessage>
+ *
+ * @param commitID
+ * @return std::tuple<std::string, std::string, std::string>
+ */
+std::tuple<std::string, std::string, std::string> ugit::getCommit(std::string commitID) {
+  std::string treeID{}, parentCommitID{}, key{}, objectID{}, commitMessage{};
+
+  std::istringstream commitStream{std::move(ugit::getObject(commitID, "commit"))};
+  std::string oneLineRecord{};
+  // when we reading the empty line, we get the delimeter
+  while (std::getline(commitStream, oneLineRecord) && !oneLineRecord.empty()) {
+    std::istringstream oneLineStream{oneLineRecord};
+
+    oneLineStream >> key;
+    oneLineStream >> objectID;
+    if (key == "tree") {
+      treeID = objectID;
+    } else if (key == "parent") {
+      parentCommitID = objectID;
+    } else {
+      spdlog::error("{} is not valid", key);
+      exit(static_cast<int>(ugit::Error::TypeError));
+    }
+  }
+
+  // We need to just read until the end of the string,
+  // which should be EOF, -1, however, we need a char to
+  // represent it, so use `\xff`.
+  std::getline(commitStream, commitMessage, '\xff');
+
+  return std::make_tuple(treeID, parentCommitID, commitMessage);
+}
+
+/**
  * @brief auxiliary function for reading trees, it is like
  * iterating the directory.
  *
