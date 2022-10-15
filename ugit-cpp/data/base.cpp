@@ -86,19 +86,16 @@ void ugit::readTree(std::string treeID) {
   readTreeRecursive(treeID, ".", pathObjectIDMap);
   for (auto &&p : pathObjectIDMap) {
     path file{p.first};
-    // Because ofstream cannot automatically create  new directories
+    // Because ofstream cannot automatically create new directories
     // Here we should create the new directory
     if (!exists(file.parent_path())) {
       create_directories(file.parent_path());
     }
-    std::ofstream os{p.first, std::ios::trunc | std::ios::binary};
-    if (!os.is_open()) {
+    std::string objectContent = ugit::getObject(p.second);
+    if (!ugit::writeBinaryToFile(p.first, objectContent.c_str(), objectContent.size())) {
       spdlog::error("could not open {}, the parent directories may not be created", p.first);
       exit(static_cast<int>(ugit::Error::FileNotExist));
     }
-    std::string objectContent = ugit::getObject(p.second);
-    os.write(objectContent.c_str(), objectContent.size());
-    os.close();
   }
 }
 

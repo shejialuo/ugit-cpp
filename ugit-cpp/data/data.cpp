@@ -53,17 +53,14 @@ std::string ugit::hashObject(const std::vector<uint8_t> &data, std::string type)
 
   // Now we need to write the binary contents to the file
   path objectHashFile = path{GIT_DIR} / path{"objects"} / path{objectID};
-  std::ofstream os{objectHashFile.string(), std::ios::binary | std::ios::trunc};
-  if (!os.is_open()) {
+
+  // Here, I just use a space to indicate the delimiter, actually
+  // it is not a good design, just for simplicity.
+  std::string content = type + " " + std::string{data.cbegin(), data.cend()};
+  if (!ugit::writeBinaryToFile(objectHashFile.string(), content.c_str(), content.size())) {
     spdlog::error("{} could not be opened, there may be no ugit repository.", objectHashFile.string());
     exit(static_cast<int>(ugit::Error::OpenFileError));
   }
-  // Here, I just use a space to indicate the delimiter, actually
-  // it is not a good design, just for simplicity.
-  std::string typeIndicator = type + " ";
-  os.write(typeIndicator.c_str(), typeIndicator.size());
-  os.write(reinterpret_cast<const char *>(&data[0]), data.size());
-  os.close();
   return objectID;
 }
 
@@ -82,9 +79,7 @@ std::string ugit::getObject(std::string object, std::string type) {
                   objectHashFile.string());
     exit(static_cast<int>(ugit::Error::FileNotExist));
   }
-  std::ifstream fs{objectHashFile.string(), std::ios::binary};
-  std::string result{std::istreambuf_iterator<char>(fs), {}};
-  fs.close();
+  std::string result = ugit::readStringFromFile(objectHashFile.string());
 
   // Here, we need to find the first space.
   std::string typeFromFile{};
@@ -105,13 +100,10 @@ std::string ugit::getObject(std::string object, std::string type) {
 void ugit::setHead(std::string commitID) {
   using namespace std::filesystem;
   path file = path{GIT_DIR} / path{"HEAD"};
-  std::ofstream os{file.string(), std::ios::trunc | std::ios::binary};
-  if (!os.is_open()) {
+  if (!ugit::writeBinaryToFile(file.string(), commitID.c_str(), commitID.size())) {
     spdlog::error("cannot open {} for writing", file.string());
     exit(static_cast<int>(ugit::Error::OpenFileError));
   }
-  os.write(commitID.c_str(), commitID.size());
-  os.close();
 }
 
 /**
@@ -127,12 +119,6 @@ std::string ugit::getHead() {
   if (!exists(file)) {
     return {};
   }
-  std::ifstream is{file.string(), std::ios::binary};
-  if (!is.is_open()) {
-    spdlog::error("cannot open {} for reading", file.string());
-    exit(static_cast<int>(ugit::Error::OpenFileError));
-  }
-  std::string headContent{std::istreambuf_iterator<char>(is), {}};
-  is.close();
+  std::string headContent = ugit::readStringFromFile(file.string());
   return headContent;
 }

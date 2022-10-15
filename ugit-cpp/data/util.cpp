@@ -90,3 +90,40 @@ std::vector<uint8_t> ugit::readBinaryFromFile(const std::string &filepath) {
   fs.close();
   return data;
 }
+
+/**
+ * @brief
+ *
+ * @param filepath
+ * @return std::string
+ */
+std::string ugit::readStringFromFile(const std::string &filepath) {
+  using namespace std::filesystem;
+  path file{filepath};
+  if (!exists(file)) {
+    spdlog::error("{} does not exist", filepath);
+    exit(static_cast<int>(ugit::Error::FileNotExist));
+  }
+  std::ifstream fs{file, std::ios::binary};
+  std::string data{std::istreambuf_iterator<char>(fs), {}};
+  fs.close();
+  return data;
+}
+
+/**
+ * @brief Write `str` to filepath
+ *
+ * @param filepath the file
+ * @param str the pointer
+ * @param size the size of the string
+ * @return bool true means successful
+ */
+bool ugit::writeBinaryToFile(const std::string &filepath, const char *str, int size) {
+  std::ofstream os{filepath, std::ios::trunc | std::ios::binary};
+  if (!os.is_open()) {
+    return false;
+  }
+  os.write(str, size);
+  os.close();
+  return true;
+}

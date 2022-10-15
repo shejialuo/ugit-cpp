@@ -58,3 +58,15 @@ TEST(UtilTest, getTypeAndRemoveType) {
   ASSERT_EQ(type, "blob");
   ASSERT_EQ(content, "\x00 mm");
 }
+
+TEST(UtilTest, readStringFromFile) {
+  std::string path = "/tmp/readStringFromFile";
+
+  for (int i = 0; i < 1000; ++i) {
+    std::string command = "echo -n " + std::to_string(i) + " > " + path;
+    system(command.c_str());
+    std::string result = ugit::readStringFromFile(path);
+    std::string should = std::to_string(i);
+    ASSERT_EQ(result, should);
+  }
+}
