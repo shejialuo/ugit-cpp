@@ -12,6 +12,7 @@
 #include "initSubcommand.hpp"
 #include "logSubcommand.hpp"
 #include "readTreeSubcommand.hpp"
+#include "tagSubcommand.hpp"
 #include "writeTreeSubcommand.hpp"
 
 /**
@@ -30,4 +31,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setCommitSubcommand(app);
   ugit::setLogSubcommand(app);
   ugit::setCheckoutSubcommand(app);
+  ugit::setTagSubcommand(app);
 }

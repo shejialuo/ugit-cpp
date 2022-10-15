@@ -109,14 +109,14 @@ void ugit::readTree(std::string treeID) {
  */
 std::string ugit::commit(std::string message) {
   std::string commitContent = "tree " + ugit::writeTree() + "\n";
-  std::string headContent = ugit::getHead();
+  std::string headContent = ugit::getRef("HEAD");
   if (!headContent.empty()) {
     commitContent += "parent " + headContent + "\n";
   }
   commitContent += "\n" + message + "\n";
   const std::vector<uint8_t> data{commitContent.cbegin(), commitContent.cend()};
   std::string commitID = ugit::hashObject(data, "commit");
-  ugit::setHead(commitID);
+  ugit::updateRef("HEAD", commitID);
   return commitID;
 }
 
@@ -165,7 +165,18 @@ std::tuple<std::string, std::string, std::string> ugit::getCommit(std::string co
 void ugit::checkout(std::string commitID) {
   auto commit = ugit::getCommit(commitID);
   ugit::readTree(std::get<0>(commit));
-  ugit::setHead(commitID);
+  ugit::updateRef("HEAD", commitID);
+}
+
+/**
+ * @brief create tag
+ *
+ * @param tagName
+ */
+void ugit::createTag(std::string tagName, std::string commitID) {
+  using namespace std::filesystem;
+  path refPath = path{"ref"} / path{"tags"} / path{tagName};
+  ugit::updateRef(refPath.string(), commitID);
 }
 
 /**
