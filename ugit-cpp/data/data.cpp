@@ -126,3 +126,27 @@ std::string ugit::getRef(std::string ref) {
   std::string refContent = ugit::readStringFromFile(file.string());
   return refContent;
 }
+
+/**
+ * @brief Use `recursive_directory_iterator` to find the `.ugit/refs`
+ * to produce the `unordered_map`.
+ *
+ * @param refMap
+ */
+void ugit::iterateRefs(std::unordered_map<std::string, std::string> &refMap) {
+  using namespace std::filesystem;
+
+  std::vector<path> refs{"HEAD"};
+
+  path refDir = path{GIT_DIR} / path{"refs"};
+  if (exists(refDir)) {
+    for (auto const &entry : recursive_directory_iterator{refDir}) {
+      if (entry.is_regular_file()) {
+        refs.push_back(relative(entry.path(), path{GIT_DIR}));
+      }
+    }
+  }
+  for (auto &ref : refs) {
+    refMap[ref.string()] = ugit::getRef(ref.string());
+  }
+}

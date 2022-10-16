@@ -9,6 +9,7 @@
 #define _UGIT_CPP_DATA_DATA_HPP_
 
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace ugit {
@@ -17,6 +18,7 @@ std::string hashObject(const std::vector<uint8_t> &data, std::string type = "blo
 std::string getObject(std::string object, std::string type = "blob");
 void updateRef(std::string ref, std::string objectID);
 std::string getRef(std::string ref);
+void iterateRefs(std::unordered_map<std::string, std::string> &refMap);
 }  // namespace ugit
 
 #endif  // _UGIT_CPP_DATA_DATA_HPP_

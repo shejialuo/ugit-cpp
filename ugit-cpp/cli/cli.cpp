@@ -10,6 +10,7 @@
 #include "commitSubcommand.hpp"
 #include "hashObjectSubcommand.hpp"
 #include "initSubcommand.hpp"
+#include "kSubcommand.hpp"
 #include "logSubcommand.hpp"
 #include "readTreeSubcommand.hpp"
 #include "tagSubcommand.hpp"
@@ -32,4 +33,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setLogSubcommand(app);
   ugit::setCheckoutSubcommand(app);
   ugit::setTagSubcommand(app);
+  ugit::setKSubcommand(app);
 }
