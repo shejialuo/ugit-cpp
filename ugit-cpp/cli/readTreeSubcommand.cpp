@@ -18,7 +18,7 @@ void ugit::setReadTreeSubcommand(CLI::App &app) {
   auto opt = std::make_shared<ReadTreeSubcommandOptions>();
   auto *readTree = app.add_subcommand("read-tree", "reads tree information into the index");
 
-  readTree->add_option("strings", opt->object, "tree id")->required();
+  readTree->add_option("tree id", opt->treeID, "tree object id")->required();
   readTree->callback([opt]() { ugit::runReadTreeSubcommand(*opt); });
 }
 
@@ -27,4 +27,7 @@ void ugit::setReadTreeSubcommand(CLI::App &app) {
  *
  * @param opt
  */
-void ugit::runReadTreeSubcommand(ReadTreeSubcommandOptions const &opt) { ugit::readTree(opt.object); }
+void ugit::runReadTreeSubcommand(ReadTreeSubcommandOptions const &opt) {
+  std::string treeID = ugit::resolveObjectID(opt.treeID);
+  ugit::readTree(treeID);
+}

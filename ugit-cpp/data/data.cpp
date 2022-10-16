@@ -98,11 +98,11 @@ std::string ugit::getObject(std::string object, std::string type) {
  * @param ref reference name
  * @param commitID
  */
-void ugit::updateRef(std::string ref, std::string commitID) {
+void ugit::updateRef(std::string ref, std::string objectID) {
   using namespace std::filesystem;
   path refPath = path{GIT_DIR} / path{ref};
   create_directories(refPath.parent_path());
-  if (!ugit::writeBinaryToFile(refPath.string(), commitID.c_str(), commitID.size())) {
+  if (!ugit::writeBinaryToFile(refPath.string(), objectID.c_str(), objectID.size())) {
     spdlog::error("cannot open {} for writing", refPath.string());
     exit(static_cast<int>(ugit::Error::OpenFileError));
   }
@@ -117,6 +117,7 @@ void ugit::updateRef(std::string ref, std::string commitID) {
 std::string ugit::getRef(std::string ref) {
   using namespace std::filesystem;
   path file = path{GIT_DIR} / path{ref};
+
   // When we are at the root, there is no HEAD FILE, we just return
   // an empty string
   if (!exists(file)) {

@@ -20,8 +20,8 @@
 void ugit::setTagSubcommand(CLI::App &app) {
   auto opt = std::make_shared<TagSubcommandOptions>();
   auto *tag = app.add_subcommand("tag", "create a name for objectID");
-  tag->add_option("strings", opt->tagName)->required();
-  tag->add_option("strings", opt->commitID);
+  tag->add_option("tag name", opt->tagName)->required();
+  tag->add_option("object id", opt->objectID);
   tag->callback([opt]() { ugit::runTagSubcommand(*opt); });
 }
 
@@ -31,9 +31,9 @@ void ugit::setTagSubcommand(CLI::App &app) {
  * @param opt
  */
 void ugit::runTagSubcommand(TagSubcommandOptions const &opt) {
-  std::string commitID = opt.commitID;
-  if (commitID.empty()) {
-    commitID = ugit::getRef("HEAD");
+  std::string objectID = ugit::resolveObjectID(opt.objectID);
+  if (objectID.empty()) {
+    objectID = ugit::getRef("HEAD");
   }
-  ugit::createTag(opt.tagName, commitID);
+  ugit::createTag(opt.tagName, objectID);
 }

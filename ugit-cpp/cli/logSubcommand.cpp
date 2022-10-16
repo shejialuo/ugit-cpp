@@ -20,7 +20,7 @@
 void ugit::setLogSubcommand(CLI::App &app) {
   auto opt = std::make_shared<LogSubcommandOptions>();
   auto *log = app.add_subcommand("log", "show commit logs");
-  log->add_option("strings", opt->commitID, "commit id");
+  log->add_option("commit id", opt->commitID, "commit object id");
   log->callback([opt]() { runLogSubcommand(*opt); });
 }
 
@@ -31,15 +31,15 @@ void ugit::setLogSubcommand(CLI::App &app) {
  * @param opt
  */
 void ugit::runLogSubcommand(const LogSubcommandOptions &opt) {
-  std::string objectID = opt.commitID;
-  if (objectID.empty()) {
-    objectID = ugit::getRef("HEAD");
+  std::string commitID = ugit::resolveObjectID(opt.commitID);
+  if (commitID.empty()) {
+    commitID = ugit::getRef("HEAD");
   }
-  while (!objectID.empty()) {
-    auto commit = ugit::getCommit(objectID);
-    std::cout << "commit " << objectID << "\n";
+  while (!commitID.empty()) {
+    auto commit = ugit::getCommit(commitID);
+    std::cout << "commit " << commitID << "\n";
     std::cout << "\n" << std::get<2>(commit) << "\n\n";
 
-    objectID = std::get<1>(commit);
+    commitID = std::get<1>(commit);
   }
 }

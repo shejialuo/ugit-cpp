@@ -12,7 +12,7 @@
 
 struct TagSubcommandOptions {
   std::string tagName;
-  std::string commitID;
+  std::string objectID;
 };
 
 namespace ugit {

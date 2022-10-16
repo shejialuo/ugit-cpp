@@ -15,7 +15,7 @@
 // Here, we use struct although there may be only one
 // field. We need extensible way
 struct ReadTreeSubcommandOptions {
-  std::string object;
+  std::string treeID;
 };
 
 namespace ugit {

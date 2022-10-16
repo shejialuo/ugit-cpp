@@ -173,10 +173,37 @@ void ugit::checkout(std::string commitID) {
  *
  * @param tagName
  */
-void ugit::createTag(std::string tagName, std::string commitID) {
+void ugit::createTag(std::string tagName, std::string objectID) {
   using namespace std::filesystem;
-  path refPath = path{"ref"} / path{"tags"} / path{tagName};
-  ugit::updateRef(refPath.string(), commitID);
+  path refPath = path{"refs"} / path{"tags"} / path{tagName};
+  ugit::updateRef(refPath.string(), objectID);
+}
+
+/**
+ * @brief get object ID from tag, if it is not tag, just
+ * return the `tagName`, which should be raw object id.
+ *
+ * @param tagName
+ * @return std::string
+ */
+std::string ugit::resolveObjectID(std::string tagName) {
+  using namespace std::filesystem;
+  if (tagName.empty()) {
+    return {};
+  }
+  path refs[] = {
+      tagName,
+      path{"refs"} / path{tagName},
+      path{"refs"} / path{"tags"} / path{tagName},
+      path{"refs"} / path{"heads"} / path{tagName},
+  };
+  for (auto ref : refs) {
+    std::string id = ugit::getRef(ref.string());
+    if (!id.empty())
+      return id;
+  }
+
+  return tagName;
 }
 
 /**
