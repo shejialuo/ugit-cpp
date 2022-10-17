@@ -283,6 +283,13 @@ std::vector<std::string> ugit::getBranchNames() {
 }
 
 /**
+ * @brief move HEAD to an commit ID
+ *
+ * @param commitID
+ */
+void ugit::reset(std::string commitID) { ugit::updateRef("HEAD", ugit::RefContainer{false, commitID}); }
+
+/**
  * @brief auxiliary function for reading trees, it is like
  * iterating the directory.
  *

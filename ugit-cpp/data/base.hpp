@@ -26,6 +26,7 @@ std::string resolveObjectID(std::string name);
 void createBranch(std::string branchName, std::string commitID);
 std::string getBranchName();
 std::vector<std::string> getBranchNames();
+void reset(std::string commitID);
 }  // namespace ugit
 
 #endif  // _UGIT_CPP_DATA_BASE_HPP_
