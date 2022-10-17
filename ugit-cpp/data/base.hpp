@@ -8,6 +8,8 @@
 #ifndef _UGIT_CPP_DATA_BASE_HPP_
 #define _UGIT_CPP_DATA_BASE_HPP_
 
+#include "util.hpp"
+
 #include <string>
 #include <utility>
 
@@ -16,7 +18,7 @@ void initialization();
 std::string writeTree(std::string directory = ".");
 void readTree(std::string treeID);
 std::string commit(std::string message);
-std::tuple<std::string, std::string, std::string> getCommit(std::string commitID);
+ugit::CommitMessage getCommit(std::string commitID);
 void checkout(std::string name);
 void createTag(std::string tagName, std::string objectID);
 std::string resolveObjectID(std::string name);

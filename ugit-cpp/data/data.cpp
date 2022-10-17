@@ -20,7 +20,7 @@
 
 constexpr std::string_view GIT_DIR = ".ugit";
 
-static std::tuple<std::string, std::tuple<bool, std::string>> getRefInternal(std::string ref, bool deref);
+static std::tuple<std::string, ugit::RefContainer> getRefInternal(std::string ref, bool deref);
 
 /**
  * @brief initialize the ugit application, create the
@@ -103,10 +103,10 @@ std::string ugit::getObject(std::string objectID, std::string type) {
  * @brief update the reference value to `ref`.
  *
  * @param ref reference name
- * @param value the wrapped value
+ * @param value the wrapped value RefContainer
  * @param deref whether to dereference the symbolic reference
  */
-void ugit::updateRef(std::string ref, std::tuple<bool, std::string> value, bool deref) {
+void ugit::updateRef(std::string ref, ugit::RefContainer value, bool deref) {
   using namespace std::filesystem;
 
   // find the reference path, which should point to
@@ -114,10 +114,10 @@ void ugit::updateRef(std::string ref, std::tuple<bool, std::string> value, bool 
   ref = std::get<0>(getRefInternal(ref, deref));
 
   std::string refValue{};
-  if (std::get<0>(value)) {
-    refValue = "ref: " + std::get<1>(value);
+  if (value.symbolic) {
+    refValue = "ref: " + value.value;
   } else {
-    refValue = std::get<1>(value);
+    refValue = value.value;
   }
 
   path refPath = path{GIT_DIR} / path{ref};
@@ -135,11 +135,9 @@ void ugit::updateRef(std::string ref, std::tuple<bool, std::string> value, bool 
  *
  * @param ref reference name
  * @param deref whether dereference refs
- * @return wrapped tuple ref value
+ * @return wrapped tuple ref value RefContainer
  */
-std::tuple<bool, std::string> ugit::getRef(std::string ref, bool deref) {
-  return std::get<1>(getRefInternal(ref, deref));
-}
+ugit::RefContainer ugit::getRef(std::string ref, bool deref) { return std::get<1>(getRefInternal(ref, deref)); }
 
 /**
  * @brief Use `recursive_directory_iterator` to find the `.ugit/refs`
@@ -148,7 +146,7 @@ std::tuple<bool, std::string> ugit::getRef(std::string ref, bool deref) {
  * @param refMap
  * @param deref
  */
-void ugit::iterateRefs(std::unordered_map<std::string, std::tuple<bool, std::string>> &refMap, bool deref) {
+void ugit::iterateRefs(std::unordered_map<std::string, ugit::RefContainer> &refMap, bool deref) {
   using namespace std::filesystem;
 
   std::vector<path> refs{"HEAD"};
@@ -171,18 +169,18 @@ void ugit::iterateRefs(std::unordered_map<std::string, std::tuple<bool, std::str
  * get the symbolic value.
  *
  * @param ref reference name
- * @return std::tuple<std::string, std::tuple<bool, std::string>>
+ * @return std::tuple<std::string, ugit::RefContainer>
  *         1. std::string the reference name
- *         2. std::tuple<bool, std::string> a container with contents and indicator whether it is symbolic
+ *         2. ugit::RefContainer a container with contents and indicator whether it is symbolic
  */
-static std::tuple<std::string, std::tuple<bool, std::string>> getRefInternal(std::string ref, bool deref) {
+static std::tuple<std::string, ugit::RefContainer> getRefInternal(std::string ref, bool deref) {
   using namespace std::filesystem;
   path file = path{GIT_DIR} / path{ref};
 
   // When we are at the root, there is no reference, we just return
   // its content with empty string.
   if (!exists(file)) {
-    return std::make_tuple(ref, std::make_tuple(false, ""));
+    return std::make_tuple(ref, ugit::RefContainer{});
   }
 
   std::string refContent = ugit::readStringFromFile(file.string());
@@ -195,5 +193,5 @@ static std::tuple<std::string, std::tuple<bool, std::string>> getRefInternal(std
       return getRefInternal(refContent, deref);
     }
   }
-  return std::make_tuple(ref, std::make_tuple(symbolic, refContent));
+  return std::make_tuple(ref, ugit::RefContainer{symbolic, refContent});
 }

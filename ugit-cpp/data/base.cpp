@@ -35,8 +35,10 @@ static bool isBranch(std::string branchName);
  *
  */
 void ugit::initialization() {
+  using namespace std::filesystem;
   ugit::initializationDirectories();
-  ugit::updateRef("HEAD", std::make_tuple(true, "refs/heads/master"));
+  path master = path{"refs"} / path{"heads"} / path{"master"};
+  ugit::updateRef("HEAD", ugit::RefContainer{true, master.string()});
 }
 
 /**
@@ -121,25 +123,25 @@ void ugit::readTree(std::string treeID) {
 std::string ugit::commit(std::string message) {
   std::string commitContent = "tree " + ugit::writeTree() + "\n";
   // Get the current commit object id
-  std::string headContent = std::get<1>(ugit::getRef("HEAD"));
+  std::string headContent = ugit::getRef("HEAD").value;
   if (!headContent.empty()) {
     commitContent += "parent " + headContent + "\n";
   }
   commitContent += "\n" + message + "\n";
   const std::vector<uint8_t> data{commitContent.cbegin(), commitContent.cend()};
   std::string commitID = ugit::hashObject(data, "commit");
-  ugit::updateRef("HEAD", std::make_tuple(false, commitID));
+  ugit::updateRef("HEAD", ugit::RefContainer{false, commitID});
   return commitID;
 }
 
 /**
  * @brief Parse the commit file to generate the
- * tuple<treeID, parentCommitID, commitMessage>
+ * CommitMessage
  *
  * @param commitID
- * @return std::tuple<std::string, std::string, std::string>
+ * @return CommitMessage objects
  */
-std::tuple<std::string, std::string, std::string> ugit::getCommit(std::string commitID) {
+ugit::CommitMessage ugit::getCommit(std::string commitID) {
   std::string treeID{}, parentCommitID{}, key{}, objectID{}, commitMessage{};
 
   std::istringstream commitStream{std::move(ugit::getObject(commitID, "commit"))};
@@ -165,7 +167,7 @@ std::tuple<std::string, std::string, std::string> ugit::getCommit(std::string co
   // represent it, so use `\xff`.
   std::getline(commitStream, commitMessage, '\xff');
 
-  return std::make_tuple(treeID, parentCommitID, commitMessage);
+  return ugit::CommitMessage{treeID, parentCommitID, commitMessage};
 }
 
 /**
@@ -177,13 +179,15 @@ std::tuple<std::string, std::string, std::string> ugit::getCommit(std::string co
  */
 void ugit::checkout(std::string name) {
   auto commit = ugit::getCommit(ugit::resolveObjectID(name));
-  ugit::readTree(std::get<0>(commit));
+  ugit::readTree(commit.treeID);
 
-  std::tuple<bool, std::string> HEAD{};
+  ugit::RefContainer HEAD{};
   if (isBranch(name)) {
-    HEAD = std::make_tuple(true, "refs/heads/" + name);
+    HEAD.symbolic = true;
+    HEAD.value = "refs/heads/" + name;
   } else {
-    HEAD = std::make_tuple(false, name);
+    HEAD.symbolic = false;
+    HEAD.value = name;
   }
 
   ugit::updateRef("HEAD", HEAD, false);
@@ -198,7 +202,7 @@ void ugit::checkout(std::string name) {
 void ugit::createTag(std::string tagName, std::string objectID) {
   using namespace std::filesystem;
   path refPath = path{"refs"} / path{"tags"} / path{tagName};
-  ugit::updateRef(refPath.string(), std::make_tuple(false, objectID));
+  ugit::updateRef(refPath.string(), ugit::RefContainer{false, objectID});
 }
 
 /**
@@ -211,9 +215,10 @@ void ugit::createTag(std::string tagName, std::string objectID) {
 std::string ugit::resolveObjectID(std::string name) {
   using namespace std::filesystem;
 
-  // If we accept the empty name, we just return {}
+  // If we accept the empty name, we just use HEAD
+  // as the default value
   if (name.empty()) {
-    return {};
+    name = "HEAD";
   }
   path refs[] = {
       name,
@@ -222,7 +227,7 @@ std::string ugit::resolveObjectID(std::string name) {
       path{"refs"} / path{"heads"} / path{name},
   };
   for (auto ref : refs) {
-    std::string id = std::get<1>(ugit::getRef(ref.string()));
+    std::string id = ugit::getRef(ref.string()).value;
     if (!id.empty())
       return id;
   }
@@ -239,7 +244,7 @@ std::string ugit::resolveObjectID(std::string name) {
 void ugit::createBranch(std::string branchName, std::string commitID) {
   using namespace std::filesystem;
   path refPath = path{"refs"} / path{"heads"} / path{branchName};
-  ugit::updateRef(refPath.string(), std::make_tuple(false, commitID));
+  ugit::updateRef(refPath.string(), ugit::RefContainer{false, commitID});
 }
 
 /**
@@ -301,6 +306,5 @@ static void emptyCurrentDirectory() {
 static bool isBranch(std::string branchName) {
   using namespace std::filesystem;
   path branchPath = path{"refs"} / path{"heads"} / path{branchName};
-  std::cout << branchPath << std::endl;
-  return !std::get<1>(ugit::getRef(branchPath.string())).empty();
+  return !ugit::getRef(branchPath.string()).value.empty();
 }

@@ -12,6 +12,22 @@
 #include <vector>
 
 namespace ugit {
+
+struct CommitMessage {
+  std::string treeID{};
+  std::string parentCommitID{};
+  std::string commitMessage{};
+  CommitMessage() {}
+  CommitMessage(std::string &t, std::string &p, std::string &m) : treeID{t}, parentCommitID{p}, commitMessage{m} {}
+};
+
+struct RefContainer {
+  bool symbolic = false;
+  std::string value{};
+  RefContainer() {}
+  RefContainer(bool s, std::string v) : symbolic{s}, value{v} {}
+};
+
 std::string sha1sumHex(const std::vector<uint8_t> &data);
 void getTypeAndRemoveType(std::string &type, std::string &content);
 std::vector<uint8_t> readBinaryFromFile(const std::string &filepath);

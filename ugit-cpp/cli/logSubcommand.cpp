@@ -32,14 +32,11 @@ void ugit::setLogSubcommand(CLI::App &app) {
  */
 void ugit::runLogSubcommand(const LogSubcommandOptions &opt) {
   std::string commitID = ugit::resolveObjectID(opt.commitID);
-  if (commitID.empty()) {
-    commitID = std::get<1>(ugit::getRef("HEAD"));
-  }
   while (!commitID.empty()) {
     auto commit = ugit::getCommit(commitID);
     std::cout << "commit " << commitID << "\n";
-    std::cout << "\n" << std::get<2>(commit) << "\n\n";
+    std::cout << "\n" << commit.commitMessage << "\n\n";
 
-    commitID = std::get<1>(commit);
+    commitID = commit.parentCommitID;
   }
 }

@@ -32,8 +32,5 @@ void ugit::setTagSubcommand(CLI::App &app) {
  */
 void ugit::runTagSubcommand(TagSubcommandOptions const &opt) {
   std::string objectID = ugit::resolveObjectID(opt.objectID);
-  if (objectID.empty()) {
-    objectID = std::get<1>(ugit::getRef("HEAD"));
-  }
   ugit::createTag(opt.tagName, objectID);
 }

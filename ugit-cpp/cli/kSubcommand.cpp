@@ -8,6 +8,7 @@
 
 #include "base.hpp"
 #include "data.hpp"
+#include "util.hpp"
 
 #include <cstdio>
 #include <iostream>
@@ -32,7 +33,7 @@ void ugit::setKSubcommand(CLI::App &app) {
  *
  */
 void ugit::runKSubcommand() {
-  std::unordered_map<std::string, std::tuple<bool, std::string>> refMap{};
+  std::unordered_map<std::string, ugit::RefContainer> refMap{};
   std::queue<std::string> commitIDs{};
   std::unordered_set<std::string> visited{};
 
@@ -45,9 +46,9 @@ void ugit::runKSubcommand() {
   ugit::iterateRefs(refMap, false);
   for (auto &ref : refMap) {
     dotCommand += "\"" + ref.first + "\"" + " [shape=note]\n";
-    dotCommand += "\"" + ref.first + "\"" + " -> " + "\"" + std::get<1>(ref.second) + "\"" + "\n";
-    if (!std::get<0>(ref.second)) {
-      commitIDs.push(std::get<1>(ref.second));
+    dotCommand += "\"" + ref.first + "\"" + " -> " + "\"" + ref.second.value + "\"" + "\n";
+    if (!ref.second.symbolic) {
+      commitIDs.push(ref.second.value);
     }
   }
 
@@ -60,7 +61,7 @@ void ugit::runKSubcommand() {
     }
     visited.insert(commitID);
     auto commitContent = ugit::getCommit(commitID);
-    std::string parentCommitID = std::get<1>(commitContent);
+    std::string parentCommitID = commitContent.parentCommitID;
     if (!parentCommitID.empty()) {
       commitIDs.push(parentCommitID);
       dotCommand += "\"" + commitID + "\" -> " + "\"" + parentCommitID + "\"\n";

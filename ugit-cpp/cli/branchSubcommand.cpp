@@ -28,9 +28,6 @@ void ugit::setBranchSubcommand(CLI::App &app) {
 
 void ugit::runBranchSubcommand(BranchSubcommandOptions const &opt) {
   std::string commitID = ugit::resolveObjectID(opt.commitID);
-  if (commitID.empty()) {
-    commitID = std::get<1>(ugit::getRef("HEAD"));
-  }
   ugit::createBranch(opt.branchName, commitID);
   spdlog::info("Branch {} created at {}", opt.branchName, commitID);
 }
