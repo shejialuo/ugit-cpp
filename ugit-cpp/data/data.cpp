@@ -145,8 +145,9 @@ ugit::RefContainer ugit::getRef(std::string ref, bool deref) { return std::get<1
  *
  * @param refMap
  * @param deref
+ * @param prefix
  */
-void ugit::iterateRefs(std::unordered_map<std::string, ugit::RefContainer> &refMap, bool deref) {
+void ugit::iterateRefs(std::unordered_map<std::string, ugit::RefContainer> &refMap, bool deref, std::string prefix) {
   using namespace std::filesystem;
 
   std::vector<path> refs{"HEAD"};
@@ -160,7 +161,10 @@ void ugit::iterateRefs(std::unordered_map<std::string, ugit::RefContainer> &refM
     }
   }
   for (auto &ref : refs) {
-    refMap[ref.string()] = ugit::getRef(ref.string(), deref);
+    std::string reference = ref.string();
+    if (reference.substr(0, prefix.length()) == prefix) {
+      refMap[reference] = ugit::getRef(reference, deref);
+    }
   }
 }
 

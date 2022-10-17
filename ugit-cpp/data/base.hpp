@@ -12,6 +12,7 @@
 
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace ugit {
 void initialization();
@@ -23,6 +24,8 @@ void checkout(std::string name);
 void createTag(std::string tagName, std::string objectID);
 std::string resolveObjectID(std::string name);
 void createBranch(std::string branchName, std::string commitID);
+std::string getBranchName();
+std::vector<std::string> getBranchNames();
 }  // namespace ugit
 
 #endif  // _UGIT_CPP_DATA_BASE_HPP_

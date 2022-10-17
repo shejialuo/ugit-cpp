@@ -248,6 +248,41 @@ void ugit::createBranch(std::string branchName, std::string commitID) {
 }
 
 /**
+ * @brief get the branch name from the HEAD, if the HEAD is
+ * detached return empty string.
+ *
+ * @return std::string branch name
+ */
+std::string ugit::getBranchName() {
+  using namespace std::filesystem;
+  auto head = ugit::getRef("HEAD", false);
+  if (!head.symbolic) {
+    return {};
+  }
+
+  path ref = path{"refs"} / path{"heads"};
+
+  return relative(head.value, ref).string();
+}
+
+/**
+ * @brief return all the branches
+ *
+ * @return std::vector<std::string>
+ */
+std::vector<std::string> ugit::getBranchNames() {
+  using namespace std::filesystem;
+  path refPath = path{"refs"} / path{"heads"};
+  std::unordered_map<std::string, ugit::RefContainer> refMaps{};
+  ugit::iterateRefs(refMaps, true, refPath.string());
+  std::vector<std::string> branchNames{};
+  for (const auto &ref : refMaps) {
+    branchNames.push_back(relative(ref.first, refPath));
+  }
+  return branchNames;
+}
+
+/**
  * @brief auxiliary function for reading trees, it is like
  * iterating the directory.
  *

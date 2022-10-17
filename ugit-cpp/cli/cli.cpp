@@ -14,6 +14,7 @@
 #include "kSubcommand.hpp"
 #include "logSubcommand.hpp"
 #include "readTreeSubcommand.hpp"
+#include "statusSubcommand.hpp"
 #include "tagSubcommand.hpp"
 #include "writeTreeSubcommand.hpp"
 
@@ -36,4 +37,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setTagSubcommand(app);
   ugit::setKSubcommand(app);
   ugit::setBranchSubcommand(app);
+  ugit::setStatusSubcommand(app);
 }
