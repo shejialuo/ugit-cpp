@@ -20,7 +20,14 @@
 
 constexpr std::string_view GIT_DIR = ".ugit";
 
-void ugit::initialization() {
+static std::tuple<std::string, std::tuple<bool, std::string>> getRefInternal(std::string ref, bool deref);
+
+/**
+ * @brief initialize the ugit application, create the
+ * `.ugit` and `.ugit/objects` directories.
+ *
+ */
+void ugit::initializationDirectories() {
   using namespace std::filesystem;
   path dir{GIT_DIR};
   if (!create_directory(dir)) {
@@ -40,7 +47,7 @@ void ugit::initialization() {
 /**
  * @brief From binary data to generate its sha1sum
  * And create the files named `sha1sum` whose content is the
- * data of the file. Well, just a mapping.
+ * data of the file. Well, just a mapping (content addressing).
  *
  * @param data the binary data of the reading content.
  * @param type the specified type.
@@ -67,12 +74,12 @@ std::string ugit::hashObject(const std::vector<uint8_t> &data, std::string type)
 /**
  * @brief Get the content for the specified object id
  *
- * @param object object id
+ * @param objectID object id
  * @param type the specified type
  */
-std::string ugit::getObject(std::string object, std::string type) {
+std::string ugit::getObject(std::string objectID, std::string type) {
   using namespace std::filesystem;
-  path objectHashFile = path{GIT_DIR} / path{"objects"} / path{object};
+  path objectHashFile = path{GIT_DIR} / path{"objects"} / path{objectID};
   if (!exists(objectHashFile)) {
     spdlog::error("{} does not exist, there may be no ugit repository "
                   "or your object id is not correct.",
@@ -93,38 +100,45 @@ std::string ugit::getObject(std::string object, std::string type) {
 }
 
 /**
- * @brief update reference
+ * @brief update the reference value to `ref`.
  *
  * @param ref reference name
- * @param commitID
+ * @param value the wrapped value
+ * @param deref whether to dereference the symbolic reference
  */
-void ugit::updateRef(std::string ref, std::string objectID) {
+void ugit::updateRef(std::string ref, std::tuple<bool, std::string> value, bool deref) {
   using namespace std::filesystem;
+
+  // find the reference path, which should point to
+  // the actual object id.
+  ref = std::get<0>(getRefInternal(ref, deref));
+
+  std::string refValue{};
+  if (std::get<0>(value)) {
+    refValue = "ref: " + std::get<1>(value);
+  } else {
+    refValue = std::get<1>(value);
+  }
+
   path refPath = path{GIT_DIR} / path{ref};
+  // We need to create directories if they does not exist
   create_directories(refPath.parent_path());
-  if (!ugit::writeBinaryToFile(refPath.string(), objectID.c_str(), objectID.size())) {
+
+  if (!ugit::writeBinaryToFile(refPath.string(), refValue.c_str(), refValue.size())) {
     spdlog::error("cannot open {} for writing", refPath.string());
     exit(static_cast<int>(ugit::Error::OpenFileError));
   }
 }
 
 /**
- * @brief return the ref commit object ID
+ * @brief To get the wrapped tuple ref value
  *
  * @param ref reference name
- * @return std::string
+ * @param deref whether dereference refs
+ * @return wrapped tuple ref value
  */
-std::string ugit::getRef(std::string ref) {
-  using namespace std::filesystem;
-  path file = path{GIT_DIR} / path{ref};
-
-  // When we are at the root, there is no HEAD FILE, we just return
-  // an empty string
-  if (!exists(file)) {
-    return {};
-  }
-  std::string refContent = ugit::readStringFromFile(file.string());
-  return refContent;
+std::tuple<bool, std::string> ugit::getRef(std::string ref, bool deref) {
+  return std::get<1>(getRefInternal(ref, deref));
 }
 
 /**
@@ -132,8 +146,9 @@ std::string ugit::getRef(std::string ref) {
  * to produce the `unordered_map`.
  *
  * @param refMap
+ * @param deref
  */
-void ugit::iterateRefs(std::unordered_map<std::string, std::string> &refMap) {
+void ugit::iterateRefs(std::unordered_map<std::string, std::tuple<bool, std::string>> &refMap, bool deref) {
   using namespace std::filesystem;
 
   std::vector<path> refs{"HEAD"};
@@ -147,6 +162,38 @@ void ugit::iterateRefs(std::unordered_map<std::string, std::string> &refMap) {
     }
   }
   for (auto &ref : refs) {
-    refMap[ref.string()] = ugit::getRef(ref.string());
+    refMap[ref.string()] = ugit::getRef(ref.string(), deref);
   }
+}
+
+/**
+ * @brief A helper function to get the internal object id or
+ * get the symbolic value.
+ *
+ * @param ref reference name
+ * @return std::tuple<std::string, std::tuple<bool, std::string>>
+ *         1. std::string the reference name
+ *         2. std::tuple<bool, std::string> a container with contents and indicator whether it is symbolic
+ */
+static std::tuple<std::string, std::tuple<bool, std::string>> getRefInternal(std::string ref, bool deref) {
+  using namespace std::filesystem;
+  path file = path{GIT_DIR} / path{ref};
+
+  // When we are at the root, there is no reference, we just return
+  // its content with empty string.
+  if (!exists(file)) {
+    return std::make_tuple(ref, std::make_tuple(false, ""));
+  }
+
+  std::string refContent = ugit::readStringFromFile(file.string());
+  // We need to recursively deal with symbolic references
+  bool symbolic = !refContent.empty() && refContent.substr(0, 4) == "ref:";
+  if (symbolic) {
+    refContent = refContent.substr(5);
+    // If we want to dereference the symbolic, we just go on.
+    if (deref) {
+      return getRefInternal(refContent, deref);
+    }
+  }
+  return std::make_tuple(ref, std::make_tuple(symbolic, refContent));
 }

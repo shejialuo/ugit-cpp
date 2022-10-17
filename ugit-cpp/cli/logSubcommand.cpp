@@ -33,7 +33,7 @@ void ugit::setLogSubcommand(CLI::App &app) {
 void ugit::runLogSubcommand(const LogSubcommandOptions &opt) {
   std::string commitID = ugit::resolveObjectID(opt.commitID);
   if (commitID.empty()) {
-    commitID = ugit::getRef("HEAD");
+    commitID = std::get<1>(ugit::getRef("HEAD"));
   }
   while (!commitID.empty()) {
     auto commit = ugit::getCommit(commitID);

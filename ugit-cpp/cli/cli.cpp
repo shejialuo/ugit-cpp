@@ -5,6 +5,7 @@
 
 #include "cli.hpp"
 
+#include "branchSubcommand.hpp"
 #include "catFileSubcommand.hpp"
 #include "checkoutSubcommand.hpp"
 #include "commitSubcommand.hpp"
@@ -34,4 +35,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setCheckoutSubcommand(app);
   ugit::setTagSubcommand(app);
   ugit::setKSubcommand(app);
+  ugit::setBranchSubcommand(app);
 }

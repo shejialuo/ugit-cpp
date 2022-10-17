@@ -29,6 +29,6 @@ void ugit::setCheckoutSubcommand(CLI::App &app) {
  * @param opt
  */
 void ugit::runCheckoutSubcommand(const CheckoutSubcommandOptions &opt) {
-  std::string commitID = ugit::resolveObjectID(opt.commitID);
-  ugit::checkout(commitID);
+  // std::string commitID = ugit::resolveObjectID(opt.commitID);
+  ugit::checkout(opt.commitID);
 }

@@ -15,6 +15,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 /**
  * @brief Set up k subcommand
@@ -26,18 +27,28 @@ void ugit::setKSubcommand(CLI::App &app) {
   k->callback([]() { ugit::runKSubcommand(); });
 }
 
-#include <iostream>
+/**
+ * @brief run k subcommand
+ *
+ */
 void ugit::runKSubcommand() {
-  std::unordered_map<std::string, std::string> refMap{};
+  std::unordered_map<std::string, std::tuple<bool, std::string>> refMap{};
   std::queue<std::string> commitIDs{};
   std::unordered_set<std::string> visited{};
 
   std::string dotCommand{"digraph commits {\n"};
-  ugit::iterateRefs(refMap);
+  // Here, we should not deference the symbol, because we want to
+  // display the symbol points to which object. If we dereference
+  // the symbol, we don't know which HEAD points to which symbol
+  // Instead, we will get the picture where HEAD points to some
+  // RAW hash object id.
+  ugit::iterateRefs(refMap, false);
   for (auto &ref : refMap) {
     dotCommand += "\"" + ref.first + "\"" + " [shape=note]\n";
-    dotCommand += "\"" + ref.first + "\"" + " -> " + "\"" + ref.second + "\"" + "\n";
-    commitIDs.push(ref.second);
+    dotCommand += "\"" + ref.first + "\"" + " -> " + "\"" + std::get<1>(ref.second) + "\"" + "\n";
+    if (!std::get<0>(ref.second)) {
+      commitIDs.push(std::get<1>(ref.second));
+    }
   }
 
   while (!commitIDs.empty()) {
