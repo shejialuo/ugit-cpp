@@ -15,6 +15,7 @@
 #include "logSubcommand.hpp"
 #include "readTreeSubcommand.hpp"
 #include "resetSubcommand.hpp"
+#include "showSubcommand.hpp"
 #include "statusSubcommand.hpp"
 #include "tagSubcommand.hpp"
 #include "writeTreeSubcommand.hpp"
@@ -40,4 +41,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setBranchSubcommand(app);
   ugit::setStatusSubcommand(app);
   ugit::setResetSubcommand(app);
+  ugit::setShowSubcommand(app);
 }

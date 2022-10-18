@@ -310,6 +310,8 @@ static void readTreeRecursive(std::string treeID,
       oneLineStream >> infos[i];
     }
     // It is really a ugly way.
+
+    // TODO: refactor here
     std::string absolutePath = path + "/" + infos[2];
 
     if (infos[0] == "blob") {

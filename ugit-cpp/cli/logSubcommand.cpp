@@ -40,7 +40,6 @@ void ugit::runLogSubcommand(const LogSubcommandOptions &opt) {
   std::unordered_map<std::string, ugit::RefContainer> refMap{};
   std::unordered_map<std::string, std::vector<std::string>> commitToReferences{};
   ugit::iterateRefs(refMap);
-
   // We need to get the mapping from commit object id to reference
   for (auto &ref : refMap) {
     commitToReferences[ref.second.value].push_back(ref.first);
@@ -48,18 +47,7 @@ void ugit::runLogSubcommand(const LogSubcommandOptions &opt) {
 
   while (!commitID.empty()) {
     auto commit = ugit::getCommit(commitID);
-    std::string reference{};
-    if (commitToReferences.count(commitID)) {
-      reference += "(";
-      std::vector<std::string> ref = commitToReferences[commitID];
-      std::string content = std::accumulate(
-          std::next(ref.begin()), ref.end(), ref[0], [](std::string a, std::string b) { return a + ',' + b; });
-      reference += content + ")";
-    }
-
-    std::cout << "commit " << commitID << reference << "\n";
-    std::cout << "\n" << commit.commitMessage << "\n\n";
-
+    ugit::printCommitMessage(commitID, commitToReferences, commit.commitMessage);
     commitID = commit.parentCommitID;
   }
 }

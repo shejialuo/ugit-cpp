@@ -10,8 +10,11 @@
 
 #include <filesystem>
 #include <fstream>
+#include <iostream>
 #include <iterator>
+#include <numeric>
 #include <openssl/sha.h>
+#include <unordered_map>
 
 std::string bytesToHexString(const std::vector<uint8_t> &input);
 
@@ -116,6 +119,7 @@ std::string ugit::readStringFromFile(const std::string &filepath) {
  * @param filepath the file
  * @param str the pointer
  * @param size the size of the string
+ * @param binary whether to writing binary
  * @return bool true means successful
  */
 bool ugit::writeBinaryToFile(const std::string &filepath, const char *str, int size) {
@@ -126,4 +130,27 @@ bool ugit::writeBinaryToFile(const std::string &filepath, const char *str, int s
   os.write(str, size);
   os.close();
   return true;
+}
+
+/**
+ * @brief
+ *
+ * @param commitID the commit object id
+ * @param commitToReferences  the mapping from commit object id to reference
+ * @param commitMessage commit message
+ */
+void ugit::printCommitMessage(std::string &commitID,
+                              std::unordered_map<std::string, std::vector<std::string>> &commitToReferences,
+                              std::string &commitMessage) {
+  std::string reference{};
+  if (commitToReferences.count(commitID)) {
+    reference += "(";
+    std::vector<std::string> ref = commitToReferences[commitID];
+    std::string content = std::accumulate(
+        std::next(ref.begin()), ref.end(), ref[0], [](std::string a, std::string b) { return a + ',' + b; });
+    reference += content + ")";
+  }
+
+  std::cout << "commit " << commitID << reference << "\n";
+  std::cout << "\n" << commitMessage << "\n\n";
 }

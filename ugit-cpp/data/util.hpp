@@ -8,7 +8,9 @@
 #ifndef _UGIT_CPP_DATA_UTIL_HPP_
 #define _UGIT_CPP_DATA_UTIL_HPP_
 
+#include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace ugit {
@@ -33,6 +35,9 @@ void getTypeAndRemoveType(std::string &type, std::string &content);
 std::vector<uint8_t> readBinaryFromFile(const std::string &filepath);
 std::string readStringFromFile(const std::string &filepath);
 bool writeBinaryToFile(const std::string &filepath, const char *str, int size);
+void printCommitMessage(std::string &commitID,
+                        std::unordered_map<std::string, std::vector<std::string>> &commitToReferences,
+                        std::string &commitMessage);
 }  // namespace ugit
 
 #endif  // _UGIT_CPP_DATA_UTIL_HPP_
