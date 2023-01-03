@@ -9,6 +9,7 @@
 #include "catFileSubcommand.hpp"
 #include "checkoutSubcommand.hpp"
 #include "commitSubcommand.hpp"
+#include "diffSubcommand.hpp"
 #include "hashObjectSubcommand.hpp"
 #include "initSubcommand.hpp"
 #include "kSubcommand.hpp"
@@ -42,4 +43,5 @@ void ugit::parseArgs(CLI::App &app) {
   ugit::setStatusSubcommand(app);
   ugit::setResetSubcommand(app);
   ugit::setShowSubcommand(app);
+  ugit::setDiffSubcommand(app);
 }

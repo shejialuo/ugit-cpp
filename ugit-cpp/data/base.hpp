@@ -27,6 +27,7 @@ void createBranch(std::string branchName, std::string commitID);
 std::string getBranchName();
 std::vector<std::string> getBranchNames();
 void reset(std::string commitID);
+std::string getWorkspaceTree();
 }  // namespace ugit
 
 #endif  // _UGIT_CPP_DATA_BASE_HPP_

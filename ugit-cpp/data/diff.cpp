@@ -17,10 +17,6 @@
 #include <unordered_map>
 #include <utility>
 
-static void parseTreeContent(const std::string &tree,
-                             std::unordered_map<std::string, std::pair<std::string, std::string>> &pathToObjectIDs,
-                             int index);
-
 static std::string diffBlobs(std::string objectID, std::string objectParentID, std::string path = "blob");
 
 /**
@@ -59,9 +55,9 @@ std::string ugit::diffTrees(const std::string &tree, const std::string &treePare
  * @param tree tree content
  * @param pathToObjectIDs
  */
-static void parseTreeContent(const std::string &tree,
-                             std::unordered_map<std::string, std::pair<std::string, std::string>> &pathToObjectIDs,
-                             int index) {
+void parseTreeContent(const std::string &tree,
+                      std::unordered_map<std::string, std::pair<std::string, std::string>> &pathToObjectIDs,
+                      int index) {
   std::stringstream treeContent{tree};
   std::string lineContent{}, type{}, objectID{}, path{};
   while (std::getline(treeContent, lineContent)) {
@@ -119,10 +115,10 @@ static std::string diffBlobs(std::string objectID, std::string objectParentID, s
   out.close();
 
   std::ofstream outParent{tempNameParent, std::ios::trunc};
-  out.write(contentParent.c_str(), content.size());
+  outParent.write(contentParent.c_str(), content.size());
   outParent.close();
 
-  std::string command = "diff --unified --show-c-function --label last/" + path + " " + tempNameParent +
+  std::string command = "diff -a --unified --show-c-function --label last/" + path + " " + tempNameParent +
                         " --label now/" + path + " " + tempName;
 
   FILE *p = popen(command.c_str(), "r");

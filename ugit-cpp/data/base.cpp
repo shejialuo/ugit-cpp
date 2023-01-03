@@ -290,6 +290,46 @@ std::vector<std::string> ugit::getBranchNames() {
 void ugit::reset(std::string commitID) { ugit::updateRef("HEAD", ugit::RefContainer{false, commitID}); }
 
 /**
+ * @brief create a new tree to indicate the
+ * current workspace. The logic is the same as
+ * the `writeTree`.
+ *
+ * @return std::string
+ */
+std::string ugit::getWorkspaceTree() {
+  using namespace std::filesystem;
+  std::vector<std::tuple<std::string, std::string, std::string>> info{};
+  // Here, we use `directory_iterator` to gracefully
+  // iterate the directories.
+  for (auto const &entry : directory_iterator{"."}) {
+    std::string objectID{};
+    std::string type{};
+    // We should ignore the ".ugit" path, actually, we could do
+    // better here, maybe we could let use create a `.ugitignore`
+    // file for us to ignore some specified.
+    if (entry.path().filename() == ".ugit" || entry.is_directory()) {
+      continue;
+    }
+    if (entry.is_regular_file()) {
+      const std::vector<uint8_t> data = ugit::readBinaryFromFile(entry.path().string());
+      objectID = ugit::hashObject(data);
+      type = "blob";
+    }
+    if (!objectID.empty()) {
+      info.push_back(std::make_tuple(type, objectID, entry.path().filename().string()));
+    }
+  }
+
+  // sort the tuple
+  sort(info.begin(), info.end());
+  std::string results{};
+  for (auto &&i : info) {
+    results += std::get<0>(i) + " " + std::get<1>(i) + " " + std::get<2>(i) + "\n";
+  }
+  return results;
+}
+
+/**
  * @brief auxiliary function for reading trees, it is like
  * iterating the directory.
  *

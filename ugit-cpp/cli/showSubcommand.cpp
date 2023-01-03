@@ -9,6 +9,7 @@
 #include "base.hpp"
 #include "data.hpp"
 #include "diff.hpp"
+#include "spdlog/spdlog.h"
 #include "util.hpp"
 
 #include <memory>
